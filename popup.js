@@ -6,6 +6,12 @@ function getTodayKey() {
   return `${yyyy}-${mm}-${dd}`;
 }
 
+function setMessage(text, isError = false) {
+  const messageEl = document.getElementById("message");
+  messageEl.textContent = text;
+  messageEl.style.color = isError ? "#7a1f1f" : "#1f5f2a";
+}
+
 async function render() {
   const data = await chrome.storage.local.get([
     "dailyLimit",
@@ -33,8 +39,7 @@ document.getElementById("save").addEventListener("click", async () => {
   const value = parseInt(input.value, 10);
 
   if (!Number.isInteger(value) || value < 1) {
-    document.getElementById("status").textContent =
-      "Please enter a whole number greater than 0.";
+    setMessage("Please enter a whole number greater than 0.", true);
     return;
   }
 
@@ -43,14 +48,14 @@ document.getElementById("save").addEventListener("click", async () => {
     debugEnabled: debugInput.checked
   });
   await render();
+  setMessage("Settings saved.");
 });
 
 document.getElementById("reset").addEventListener("click", async () => {
   const debugEnabled = document.getElementById("debug").checked;
 
   if (!debugEnabled) {
-    document.getElementById("status").textContent =
-      "Enable debug logging before resetting extension data.";
+    setMessage("Enable debug logging before resetting extension data.", true);
     return;
   }
 
@@ -63,14 +68,12 @@ document.getElementById("reset").addEventListener("click", async () => {
   const response = await chrome.runtime.sendMessage({ type: "RESET_DEBUG_STATE" });
 
   if (!response?.ok) {
-    document.getElementById("status").textContent =
-      "Reset failed. Check the service worker console for details.";
+    setMessage("Reset failed. Check the service worker console for details.", true);
     return;
   }
 
   await render();
-  document.getElementById("status").textContent =
-    "Extension data reset. Limit restored to default and watch history cleared.";
+  setMessage("Extension data reset. Limit restored to default and watch history cleared.");
 });
 
 chrome.storage.onChanged.addListener(() => {
