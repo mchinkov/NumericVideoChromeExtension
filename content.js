@@ -53,7 +53,7 @@ function showOverlay(message) {
   overlayEl = document.createElement("div");
   overlayEl.style.position = "fixed";
   overlayEl.style.inset = "0";
-  overlayEl.style.background = "rgba(0,0,0,0.85)";
+  overlayEl.style.background = "rgba(0,0,0,0.72)";
   overlayEl.style.zIndex = "999999";
   overlayEl.style.display = "flex";
   overlayEl.style.alignItems = "center";
@@ -61,20 +61,30 @@ function showOverlay(message) {
   overlayEl.style.padding = "24px";
 
   const box = document.createElement("div");
-  box.style.maxWidth = "520px";
-  box.style.background = "#111";
-  box.style.color = "#fff";
+  box.style.width = "100%";
+  box.style.maxWidth = "560px";
+  box.style.background = "#fff";
+  box.style.color = "#111";
   box.style.padding = "24px";
-  box.style.borderRadius = "16px";
+  box.style.borderRadius = "14px";
+  box.style.border = "1px solid #d9d9d9";
+  box.style.boxShadow = "0 18px 48px rgba(0, 0, 0, 0.24)";
   box.style.fontFamily = "Arial, sans-serif";
   box.style.textAlign = "center";
 
   const title = document.createElement("h2");
   title.textContent = "Daily video limit reached";
-  title.style.marginTop = "0";
+  title.style.margin = "0 0 10px";
+  title.style.fontSize = "20px";
+  title.style.lineHeight = "1.2";
+  title.style.fontWeight = "700";
 
   overlayTextEl = document.createElement("p");
   overlayTextEl.textContent = message;
+  overlayTextEl.style.margin = "0";
+  overlayTextEl.style.fontSize = "14px";
+  overlayTextEl.style.lineHeight = "1.45";
+  overlayTextEl.style.color = "#444";
 
   box.appendChild(title);
   box.appendChild(overlayTextEl);
@@ -140,7 +150,8 @@ async function refreshBlockState(videoId) {
     });
     pauseVideo();
     showOverlay(
-      `You have already watched ${status.count} video(s) today, which is your limit.`
+      `You have already watched ${status.count} video(s) today, which is your limit. 
+      Now might be best to take a break.`
     );
     return true;
   }
@@ -197,7 +208,7 @@ async function syncVideoState() {
       });
       pauseVideo();
       showOverlay(
-        `You have already watched ${result.count} video(s) today, which is your limit.`
+        `You have already watched ${result.count} video(s) today, which is your limit. Consider taking a break.`
       );
       return;
     }
