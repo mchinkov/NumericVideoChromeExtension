@@ -1,5 +1,6 @@
 const DEFAULT_LIMIT = 5;
 const DEBUG_KEY = "debugEnabled";
+const LAST_DEBUG_RESET_KEY = "lastDebugResetAt";
 let countQueue = Promise.resolve();
 
 function getTodayKey() {
@@ -143,17 +144,20 @@ async function handleMessage(message) {
   }
 
   if (message?.type === "RESET_DEBUG_STATE") {
+    const resetAt = new Date().toISOString();
     await chrome.storage.local.set({
       dailyLimit: DEFAULT_LIMIT,
       dailyData: {},
-      debugEnabled: true
+      debugEnabled: true,
+      [LAST_DEBUG_RESET_KEY]: resetAt
     });
-    await debugLog("RESET_DEBUG_STATE");
+    await debugLog("RESET_DEBUG_STATE", { resetAt });
     return {
       ok: true,
       limit: DEFAULT_LIMIT,
       count: 0,
-      blocked: false
+      blocked: false,
+      resetAt
     };
   }
 

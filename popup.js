@@ -1,3 +1,6 @@
+const DEFAULT_LIMIT = 5;
+const LAST_DEBUG_RESET_KEY = "lastDebugResetAt";
+
 function getTodayKey() {
   const now = new Date();
   const yyyy = now.getFullYear();
@@ -12,17 +15,32 @@ function setMessage(text, isError = false) {
   messageEl.style.color = isError ? "#7a1f1f" : "#1f5f2a";
 }
 
+function formatTimestamp(timestamp) {
+  if (!timestamp) return "Never";
+
+  return new Date(timestamp).toLocaleString();
+}
+
+function getTrackedVideoCount(dailyData) {
+  return Object.values(dailyData || {}).reduce((total, dayData) => {
+    if (!dayData || !Array.isArray(dayData.viewedVideoIds)) return total;
+    return total + dayData.viewedVideoIds.length;
+  }, 0);
+}
+
 async function render() {
   const data = await chrome.storage.local.get([
     "dailyLimit",
     "dailyData",
-    "debugEnabled"
+    "debugEnabled",
+    "lastDebugResetAt"
   ]);
 
   const limit = Number.isInteger(data.dailyLimit) ? data.dailyLimit : 5;
   const today = getTodayKey();
   const count = data.dailyData?.[today]?.count || 0;
   const debugEnabled = data.debugEnabled === true;
+  const debugInfoEl = document.getElementById("debugInfo");
 
   document.getElementById("limit").value = limit;
   document.getElementById("debug").checked = debugEnabled;
@@ -31,6 +49,9 @@ async function render() {
     `Today: ${count} / ${limit} videos watched. Debug logging is ${
       debugEnabled ? "on" : "off"
     }.`;
+  debugInfoEl.textContent = debugEnabled
+    ? `Last reset: ${formatTimestamp(data.lastDebugResetAt)}`
+    : "";
 }
 
 document.getElementById("save").addEventListener("click", async () => {
@@ -59,21 +80,26 @@ document.getElementById("reset").addEventListener("click", async () => {
     return;
   }
 
-  const confirmed = window.confirm(
-    "Reset the extension back to its default state for debugging?"
-  );
+  try {
+    const existing = await chrome.storage.local.get(["dailyData"]);
+    const clearedVideoCount = getTrackedVideoCount(existing.dailyData);
+    const resetAt = new Date().toISOString();
 
-  if (!confirmed) return;
+    await chrome.storage.local.set({
+      dailyLimit: DEFAULT_LIMIT,
+      dailyData: {},
+      debugEnabled: true,
+      [LAST_DEBUG_RESET_KEY]: resetAt
+    });
 
-  const response = await chrome.runtime.sendMessage({ type: "RESET_DEBUG_STATE" });
-
-  if (!response?.ok) {
-    setMessage("Reset failed. Check the service worker console for details.", true);
-    return;
+    await render();
+    setMessage(
+      `Extension data reset. Cleared ${clearedVideoCount} tracked video(s).`
+    );
+  } catch (error) {
+    console.error("Reset failed:", error);
+    setMessage("Reset failed. Check the popup console for details.", true);
   }
-
-  await render();
-  setMessage("Extension data reset. Limit restored to default and watch history cleared.");
 });
 
 chrome.storage.onChanged.addListener(() => {
