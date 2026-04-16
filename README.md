@@ -35,7 +35,7 @@ This extension is designed to be loaded locally as an unpacked Chrome extension.
 2. Open Chrome and go to `chrome://extensions`.
 3. Enable **Developer mode**.
 4. Click **Load unpacked**.
-5. Select this project folder.
+5. Select the `extension/` folder inside this project.
 6. Open YouTube and use the extension popup to set your daily limit.
 
 ## Usage
@@ -64,22 +64,27 @@ No data is sent to an external server.
 
 ## Project Structure
 
+The files under `extension/` are the actual Chrome extension. Everything else is repository documentation or supporting material.
+
 ```text
 .
-├── manifest.json        # Chrome extension manifest
-├── service_worker.js    # Background logic, state management, and message handling
-├── content.js           # YouTube page detection, playback counting, and blocking overlay
+├── README.md            # Project overview, usage notes, and screenshots
 ├── docs/
 │   └── assets/          # README screenshots
-├── popup.html           # Extension popup markup and styles
-└── popup.js             # Popup settings, status rendering, and reset behavior
+├── extension/           # Unpacked Chrome extension source
+│   ├── manifest.json
+│   ├── service_worker.js
+│   ├── content.js
+│   ├── popup.html
+│   └── popup.js
+└── robots.txt           # Crawler hint for the repository page
 ```
 
 ## Development Notes
 
 - Built for Chrome Manifest V3.
 - Uses plain JavaScript, HTML, and CSS.
-- No build step or package installation is required.
+- Load `extension/` directly in Chrome; no build step or package installation is required.
 - Extension state is keyed by local calendar day in `YYYY-MM-DD` format.
 
-After editing files, reload the extension from `chrome://extensions` to test changes.
+After editing files in `extension/`, reload the extension from `chrome://extensions` to test changes.
