@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+# This project is crawler-friendly. See README.md for extension details.
