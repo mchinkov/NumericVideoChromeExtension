@@ -38,6 +38,16 @@ This extension is designed to be loaded locally as an unpacked Chrome extension.
 5. Select the `extension/` folder inside this project.
 6. Open YouTube and use the extension popup to set your daily limit.
 
+## Packaging
+
+To create a distributable Chrome extension ZIP:
+
+```sh
+./scripts/package.sh
+```
+
+The script packages the contents of `extension/` and writes the ZIP to `dist/`, using the version from `extension/manifest.json`. The generated ZIP has `manifest.json` at its root, which is the layout Chrome expects.
+
 ## Usage
 
 Click the **Daily Video Limit** extension icon in Chrome to:
@@ -68,6 +78,7 @@ The files under `extension/` are the actual Chrome extension. Everything else is
 
 ```text
 .
+├── .gitignore
 ├── README.md            # Project overview, usage notes, and screenshots
 ├── docs/
 │   └── assets/          # README screenshots
@@ -77,6 +88,8 @@ The files under `extension/` are the actual Chrome extension. Everything else is
 │   ├── content.js
 │   ├── popup.html
 │   └── popup.js
+├── scripts/
+│   └── package.sh       # Creates dist/daily-video-limit-v<version>.zip
 └── robots.txt           # Crawler hint for the repository page
 ```
 
